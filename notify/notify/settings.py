@@ -129,6 +129,7 @@ LOGGING = {
     },
 }
 
+ATTENDANCE_CACHE_EXPIRE = 10
 try:
     from .local_settings import *
 except:

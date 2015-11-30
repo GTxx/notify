@@ -19,5 +19,6 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('record.urls')),
-    url(r'^attendance/(?P<center_id>\d+)/(?P<class_id>\d+)$', 'record.views.get_pickup')
+    url(r'^attendance/(?P<center_id>\d+)/(?P<class_id>\d+)$', 'record.views.get_pickup'),
+    url(r'^del_student_today/(?P<student_id>\d+)/$', 'record.views.del_student_today')
 ]

@@ -8,6 +8,7 @@ from .serializers import PickUpSerializer
 from .models import PickUp
 import redis
 import json
+from django.conf import settings
 
 # Create your views here.
 
@@ -51,9 +52,23 @@ def get_pickup(request, center_id, class_id):
     if cache:
         return Response(data=json.loads(cache))
     query = PickUp.objects.filter(date=date.today(), center=center_id, klass=class_id)
+    # import ipdb; ipdb.set_trace()
     data = PickUpSerializer(query, many=True).data
-    r_cli.set(key_center_class_today(center_id, class_id), json.dumps(data), ex=30)
+    r_cli.set(key_center_class_today(center_id, class_id), json.dumps(data), ex=settings.ATTENDANCE_CACHE_EXPIRE)
     return Response(data)
+
+
+@api_view(http_method_names=['DELETE'])
+def del_student_today(request, student_id):
+    today = date.today()
+    queryset = PickUp.objects.filter(student=student_id, date=today)
+    count = queryset.count()
+    if count > 0:
+        obj = queryset.first()
+        queryset.delete()
+        key = key_center_class_today(obj.center, obj.klass)
+        r_cli.delete(key)
+    return Response(data={}, status=status.HTTP_204_NO_CONTENT)
 
 
 def key_center_class_today(center, class_id):
